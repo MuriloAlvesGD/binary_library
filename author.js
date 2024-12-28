@@ -48,15 +48,69 @@ export class Author {
         }
     }
 
+
     searchBooks(node, bookTitle){
-        let result = "";
+        let result = [];
         if (node != null){
-            result += this.searchBooks(this.books[node[1]], bookTitle)
+            result.push(...this.searchBooks(this.books[node[1]], bookTitle))
             if (node[0].title.includes(bookTitle)) {
-                result = result + `${node[0].year} | ${node[0].title}\n`
+                result.push({title: node[0].title, year: node[0].year})
             }
-            result += this.searchBooks(this.books[node[2]], bookTitle)
+            result.push(...this.searchBooks(this.books[node[2]], bookTitle))
         }
         return result;
     }
+
+    removeBook(index, book){
+        const node = this.books[index]
+        if(book.year < node[0].year){ //valor menor
+            this.removeBook(node[1], book) //lado esquerdo
+        }
+        else if (book.year > node[0].year){ //valor maior
+            this.removeBook(node[2], book) //lado direito
+        }
+        else if (node[1] !== -1 && node[2] !== -1){ //valor igual (nó a ser excluido) mas com filho em ambos os lados
+            console.log(`nó apagado ${node}`)
+            this.books[index] = this.glue(node[1], this.books[node[2]]) //substitui o nó pelo ponteiro a direita
+            this.books[node[2]] = null; //apaga o antigo ponteiro
+        }
+        else if (node[1] !== -1 || node[2] !== -1){ //nó com filho em apenas um lado
+            if(node[1] === -1){ //filho a direita
+                console.log(`nó apagado ${node}`)
+                this.books[index] = this.books[node[2]]
+                this.books[node[2]] = null;
+            } else { //filho a esquerda
+                console.log(`nó apagado ${node}`)
+                this.books[index] = this.books[node[1]]
+                this.books[node[1]] = null;
+            }
+        }
+        else { //folha
+            console.log(`nó apagado ${node}`)
+            this.books[index] = null;
+        }
+    }
+
+    glue(index, node){
+        if (node[1] === -1){ //nó substituto não possui filhos menores
+            node[1] = index //indica o filho menor do nó deletado como filho deste
+        }
+        else {
+            this._glue(index, node[1]) //nó possui filho menor
+        }
+        return node
+    }
+
+    _glue(index, indexLeaf){
+        //procura a folha entre os menores
+        let leaf = this.books[indexLeaf]
+        if (leaf[1] === -1){ //condição de parada
+            leaf[1] = index
+            this.books[indexLeaf] = leaf;
+        }
+        else{
+            this._glue(leaf[1]);
+        }
+    }
+
 }

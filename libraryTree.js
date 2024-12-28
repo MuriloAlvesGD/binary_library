@@ -69,17 +69,37 @@ export class libraryTree {
         }
     }
 
-    searchBook(index, bookTitle){
-        let result = "";
+    searchBooks(index, bookTitle){
+        let result = [];
         const node = this.tree[index]
         if (node != null){
-            result += this.searchBook(node[1], bookTitle)
+            result.push(...this.searchBooks(node[1], bookTitle))
             const books = node[0].searchBooks(node[0].books[0], bookTitle)
-            if (books !== ""){
-                result += `\nAutor: ${node[0].author}\n` + books
+            if (books.length > 0){
+                result.push({author: node[0].author, books: books})
             }
-            result += this.searchBook(node[2],bookTitle)
+            result.push(...this.searchBooks(node[2],bookTitle))
         }
         return result;
+    }
+
+    removeBook(author, book){
+        if(this.tree[0] == null){
+            return "Empty Tree"
+        } else {
+            return this._removeBook(0, author, book);
+        }
+    }
+
+    _removeBook(index, author, book){
+        if(author.charCodeAt(0) < this.tree[index][0].author.charCodeAt(0)){
+            this._removeBook(this.tree[index][1], author, book)
+        } else {
+            if(author === this.tree[index][0].author){
+                this.tree[index][0].removeBook(0, book)
+            } else {
+                this._removeBook(this.tree[index][2], author, book)
+            }
+        }
     }
 }

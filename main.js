@@ -28,17 +28,44 @@ function mainMenu() {
                 break;
             case '3':
                 rl.question("\nQual o nome do livro?: ", (bookTitle) => {
-                    const result = library.searchBook(0, bookTitle)
-                    result.length > 0 ? console.log(`\nResultados para | ${bookTitle} |\n` + result):console.log("\nnenhum livro encontrado")
+                    const result = library.searchBooks(0, bookTitle);
+                    if (result.length > 0) {
+                        console.log(`\nResultados para |> ${bookTitle} <|\n`);
+                        result.forEach(i => {
+                            console.log(`Author: ${i.author}`)
+                            console.table(i.books)
+                        })
+                    } else {
+                        console.log("\nnenhum livro encontrado")
+                    }
                     mainMenu();
                 }) // Chama a função para buscar livro
                 break;
-            // case '4':
-            //     removeBook(); // Chama a função para remover livro
-            //     break;
-            // case '5':
-            //     rl.close(); // Fecha a interface
-            //     break;
+            case '4':
+                rl.question("\nQual o livro a ser removido?: ", (bookTitle) => {
+                    const result = library.searchBooks(0, bookTitle)
+                    if (result.length > 0) {
+                        console.log(`\nResultados para |> ${bookTitle} <|\n`);
+                        result.forEach((i, index) => {
+                            console.log(`${index} - Author: ${i.author}`)
+                            console.table(i.books)
+                        })
+                        rl.question("\nQual o autor correto (informe o numero)?: ", (author) => {
+                            rl.question("\nQual o livro correto (informe o numero)?: ", (book) => {
+                                library.removeBook(result[author].author, result[author].books[book])
+                                console.log('Livro deletado com sucesso')
+                                mainMenu();
+                            })
+                        })
+                    } else {
+                        console.log("\nnenhum livro encontrado")
+                        mainMenu();
+                    }
+                })// Chama a função para remover livro
+                break;
+            case '5':
+                rl.close(); // Fecha a interface
+                break;
             default:
                 console.log("Opção inválida. Tente novamente."); // Mensagem de erro
                 mainMenu(); // Retorna ao menu principal
@@ -63,19 +90,6 @@ function addBook() {
             });
         });
     });
-}
-
-function listBooks() {
-    if (!this.head) {
-        console.log("Nenhum livro encontrado."); // Mensagem se a lista estiver vazia
-        return;
-    }
-    let current = this.head;
-    // Percorre a lista e imprime os detalhes de cada livro
-    while (current) {
-        console.log(`Título: ${current.title}, Autor: ${current.author}, Ano: ${current.year}`);
-        current = current.next;
-    }
 }
 
 mainMenu()
